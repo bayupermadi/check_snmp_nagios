@@ -27,7 +27,7 @@ do
 done
 
 value=`snmpwalk -On -v 2c $hostname -c $community .1.3.6.1.4.1.2021.11.10  | awk '{print $4}'`
-echo "CPU Usage = $value% | cpu_usage=$value"
+echo "CPU Usage = $value% | cpu_usage=$value;$warning;$critical"
 if [ $value -gt $critical ]; then
     exit 2
 elif [ $value -gt $warning ]; then
