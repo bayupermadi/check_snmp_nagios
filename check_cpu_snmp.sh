@@ -32,6 +32,8 @@ if [ $value -gt $critical ]; then
     exit 2
 elif [ $value -gt $warning ]; then
     exit 1
-else 
+elif [ $value -ge 0 ]; then
     exit 0
+else 
+    exit 3
 fi
