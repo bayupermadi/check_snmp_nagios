@@ -2,7 +2,7 @@
 
 help() {
   echo ""
-  echo "Check the CPU Utilization"
+  echo "Check the Memory Utilization"
   echo ""
   echo "-H <hostname or ip address > (str)"
   echo "-p <snmp community> (str)"
@@ -12,7 +12,7 @@ help() {
   echo ""
   echo ""
   echo "This plugin use the 'snmpwalk' command."
-  echo "Make sure you have activated OID .1.3.6.1.4.1.2021.11.10 for CPU system percent"
+  echo "Make sure you have activated OID .1.3.6.1.4.1.2021.4 for Memory information"
 }
 
 while getopts H:C:w:c:h OPT
@@ -26,8 +26,15 @@ do
     esac
 done
 
-value=`snmpwalk -On -v 2c $hostname -c $community .1.3.6.1.4.1.2021.11.10  | awk '{print $4}'`
-echo "CPU Usage = $value% | cpu_usage=$value;$warning;$critical"
+total=`snmpwalk -On -v 2c $hostname -c $community .1.3.6.1.4.1.2021.4.5  | awk '{print $4}'`
+free=`snmpwalk -On -v 2c $hostname -c $community .1.3.6.1.4.1.2021.4.6  | awk '{print $4}'`
+buffer=`snmpwalk -On -v 2c $hostname -c $community .1.3.6.1.4.1.2021.4.14  | awk '{print $4}'`
+cache=`snmpwalk -On -v 2c $hostname -c $community .1.3.6.1.4.1.2021.4.15  | awk '{print $4}'`
+
+available=$((free + buffer + cache))
+used=$((total - available))
+value=$((used * 100 / total ))
+echo "Memory Usage = $value% | mem_usage=$value;$warning;$critical"
 if [ $value -gt $critical ]; then
     exit 2
 elif [ $value -gt $warning ]; then
